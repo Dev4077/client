@@ -58,7 +58,7 @@ const Button = styled.button`
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-inline: 5px;
+  margin-inline: 10px;
 `;
 
 const User = styled.div`
