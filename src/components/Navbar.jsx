@@ -3,9 +3,11 @@ import styled from "styled-components";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import VideoCallOutlinedIcon from "@mui/icons-material/VideoCallOutlined";
+import VideoChatOutlinedIcon from '@mui/icons-material/VideoChatOutlined';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Upload from "./Upload";
+import AdsUpload from "./AdsUpload";
 import axios from "axios";
 
 const Container = styled.div`
@@ -67,6 +69,7 @@ const User = styled.div`
   gap: 10px;
   font-weight: 500;
   color: white;
+  cursor: pointer;
 `;
 
 const Avatar = styled.img`
@@ -79,6 +82,7 @@ const Avatar = styled.img`
 const Navbar = () => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false);
+  const [openAds, setOpenAds] = useState(false);
   const [q, setQ] = useState("");
   const { currentUser } = useSelector((state) => state.user);
 
@@ -115,6 +119,11 @@ const Navbar = () => {
              <AccountCircleOutlinedIcon />
              LOGOUT
            </Button>
+           {currentUser?.name == "admin" ?
+           (<User onClick={() => setOpenAds(true)}><VideoChatOutlinedIcon /> Add New ADS </User>) : (
+            <></>
+           )
+           }
            </>
           ) : (
             <Link to="signin" style={{ textDecoration: "none" }}>
@@ -128,6 +137,7 @@ const Navbar = () => {
         </Wrapper>
       </Container>
       {open && <Upload setOpen={setOpen} />}
+      {openAds && <AdsUpload setOpenAds={setOpenAds} />}
     </>
   );
 };

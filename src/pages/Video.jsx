@@ -24,7 +24,9 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 5;
 `;
-const VideoWrapper = styled.div``;
+const VideoWrapper = styled.div`
+  position: relative;
+`;
 
 const Title = styled.h1`
   font-size: 18px;
@@ -114,7 +116,22 @@ const VideoFrame = styled.video`
   max-height: 720px;
   width: 100%;
   object-fit: cover;
+  
 `;
+
+const SkipBtn = styled.button`
+    position: absolute;
+    border: 1px solid black;
+    background-color: #ffffff75;
+    color: black;
+    border-radius: 10px;
+    z-index: 100;
+    top: 601px;
+    right: 17px;
+    height: 27px;
+    width: 70px;
+    font-size: larger;
+`
 
 const Video = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -124,19 +141,31 @@ const Video = () => {
   const path = useLocation().pathname.split("/")[2];
 
   const [channel, setChannel] = useState({});
+  const [adsVideo, setAdsVideo] = useState([]);
+  const [adsPlay, setAdsPlay] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const videoRes = await axios.get(`/videos/find/${path}`);
+        const res = await axios.put(`/videos/view/${path}`)
+        const adsvideoRes = await axios.get(`/adsvideo/findads`);
+        
+        // console.log(adsvideoRes.data[0])
+        setAdsVideo(adsvideoRes.data[0])
+
         const channelRes = await axios.get(
           `/users/find/${videoRes.data.userId}`
         );
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
+        setTimeout(() => {
+          setAdsPlay(false)
+        }, 10000);
       } catch (err) {}
     };
     fetchData();
+  
   }, [path, dispatch]);
 
   const handleLike = async () => {
@@ -155,13 +184,17 @@ const Video = () => {
     dispatch(subscription(channel._id));
   };
 
+  const skipAd = () => {
+    setAdsPlay(false)
+  } 
   //TODO: DELETE VIDEO FUNCTIONALITY
 
   return (
     <Container>
       <Content>
         <VideoWrapper>
-          <VideoFrame src={currentVideo?.videoUrl} controls />
+          <VideoFrame src={adsPlay ? (adsVideo?.videoUrl) : (currentVideo?.videoUrl)} controls={adsPlay ? false : true} autoPlay={true}/>
+            {adsPlay ? (<SkipBtn onClick={skipAd}>Skip</SkipBtn>) : (<></>) }
         </VideoWrapper>
         <Title>{currentVideo?.title}</Title>
         <Details>
