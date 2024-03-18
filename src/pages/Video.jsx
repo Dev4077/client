@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
@@ -119,6 +119,16 @@ const VideoFrame = styled.video`
   
 `;
 
+const Banner = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 10;
+`;
+
 const SkipBtn = styled.button`
     position: absolute;
     border: 1px solid black;
@@ -142,7 +152,9 @@ const Video = () => {
 
   const [channel, setChannel] = useState({});
   const [adsVideo, setAdsVideo] = useState([]);
-  const [adsPlay, setAdsPlay] = useState(true);
+  const [showBanner, setShowBanner] = useState(false);
+  const [couter, setCounter] = useState(0);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -160,12 +172,23 @@ const Video = () => {
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
         setTimeout(() => {
-          setAdsPlay(false)
-        }, 10000);
+          setShowBanner(true);
+          if (videoRef.current) {
+            videoRef.current.pause(); 
+          } 
+        }, 45000); 
+
+        setTimeout(() => {
+          setShowBanner(false);
+          if (videoRef.current) {
+            videoRef.current.play(); 
+          } 
+         
+        }, 55000); 
       } catch (err) {}
     };
     fetchData();
-  
+
   }, [path, dispatch]);
 
   const handleLike = async () => {
@@ -184,17 +207,24 @@ const Video = () => {
     dispatch(subscription(channel._id));
   };
 
-  const skipAd = () => {
-    setAdsPlay(false)
-  } 
   //TODO: DELETE VIDEO FUNCTIONALITY
 
   return (
     <Container>
       <Content>
-        <VideoWrapper>
-          <VideoFrame src={adsPlay ? (adsVideo?.videoUrl) : (currentVideo?.videoUrl)} controls={adsPlay ? false : true} autoPlay={true}/>
-            {adsPlay ? (<SkipBtn onClick={skipAd}>Skip</SkipBtn>) : (<></>) }
+      <VideoWrapper>
+          {/* Banner */}
+          {showBanner && (
+            <Banner src={adsVideo?.videoUrl} autoPlay />
+          )}
+          {/* Main Video */}
+          <VideoFrame
+            ref={videoRef}
+            src={currentVideo?.videoUrl}
+            controls={true}
+            autoPlay={!showBanner} // Auto-play video unless it's paused// Pause the video if videoPaused is true
+          />
+         
         </VideoWrapper>
         <Title>{currentVideo?.title}</Title>
         <Details>
