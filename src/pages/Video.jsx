@@ -153,43 +153,58 @@ const Video = () => {
   const [channel, setChannel] = useState({});
   const [adsVideo, setAdsVideo] = useState([]);
   const [showBanner, setShowBanner] = useState(false);
-  const [couter, setCounter] = useState(0);
+  const [savedTime, setSavedTime] = useState(null);
+  const [flag, setFlag] = useState(true);
   const videoRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const videoRes = await axios.get(`/videos/find/${path}`);
-        const res = await axios.put(`/videos/view/${path}`)
+        const res = await axios.put(`/videos/view/${path}`);
         const adsvideoRes = await axios.get(`/adsvideo/findads`);
-        
-        // console.log(adsvideoRes.data[0])
-        setAdsVideo(adsvideoRes.data[0])
+
+        setAdsVideo(adsvideoRes.data[0]);
 
         const channelRes = await axios.get(
           `/users/find/${videoRes.data.userId}`
         );
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
-        setTimeout(() => {
-          setShowBanner(true);
-          if (videoRef.current) {
-            videoRef.current.pause(); 
-          } 
-        }, 45000); 
-
-        setTimeout(() => {
-          setShowBanner(false);
-          if (videoRef.current) {
-            videoRef.current.play(); 
-          } 
-         
-        }, 55000); 
       } catch (err) {}
     };
     fetchData();
-
   }, [path, dispatch]);
+
+  const handlePause = () => {
+    console.log(videoRef.current)
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+
+
+  const handleVideoTimeUpdate = () => {
+    if (videoRef.current.currentTime > 45 && !showBanner && flag === true) {
+      setShowBanner(true);
+      handlePause();
+      // videoRef.current.mute();
+      setSavedTime(videoRef.current.currentTime); // Save the current time when pausing
+      // videoRef.current.pause();
+      setFlag(false)
+    }
+  };
+
+  const handleBannerEnd = () => {
+    if (showBanner) {
+      setShowBanner(false);
+      videoRef.current.play();
+      if (savedTime) {
+        videoRef.current.currentTime = savedTime; // Resume video at saved time
+        setSavedTime(null); // Reset saved time after resuming
+      }
+    }
+  };
 
   const handleLike = async () => {
     await axios.put(`/users/like/${currentVideo._id}`);
@@ -207,6 +222,17 @@ const Video = () => {
     dispatch(subscription(channel._id));
   };
 
+  const handleSkip = () => {
+    if (showBanner) {
+      setShowBanner(false);
+      videoRef.current.play();
+      if (savedTime) {
+        videoRef.current.currentTime = savedTime; // Resume video at saved time
+        setSavedTime(null); // Reset saved time after resuming
+      }
+    }
+  }
+
   //TODO: DELETE VIDEO FUNCTIONALITY
 
   return (
@@ -214,15 +240,18 @@ const Video = () => {
       <Content>
       <VideoWrapper>
           {/* Banner */}
-          {showBanner && (
-            <Banner src={adsVideo?.videoUrl} autoPlay />
+          {showBanner && (<>
+            <Banner src={adsVideo?.videoUrl} autoPlay={showBanner} onEnded={handleBannerEnd} />
+            <SkipBtn onClick={handleSkip}>Skip</SkipBtn></>
           )}
           {/* Main Video */}
           <VideoFrame
             ref={videoRef}
             src={currentVideo?.videoUrl}
             controls={true}
-            autoPlay={!showBanner} // Auto-play video unless it's paused// Pause the video if videoPaused is true
+            muted={showBanner}
+            autoPlay={!showBanner}
+            onTimeUpdate={handleVideoTimeUpdate} // Auto-play video unless it's paused// Pause the video if videoPaused is true
           />
          
         </VideoWrapper>
