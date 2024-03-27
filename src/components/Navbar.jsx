@@ -88,7 +88,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("/auth/logout");
+      await axios.post("https://videoplayer-9bb8.onrender.com/api/auth/logout");
       localStorage.removeItem("persist:root");
       window.location.reload();
       navigate("/");

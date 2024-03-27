@@ -12,7 +12,7 @@ const Recommendation = ({ tags }) => {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const res = await axios.get(`/videos/tags?tags=${tags}`);
+      const res = await axios.get(`https://videoplayer-9bb8.onrender.com/api/videos/tags?tags=${tags}`);
       setVideos(res.data);
     };
     fetchVideos();
@@ -20,7 +20,7 @@ const Recommendation = ({ tags }) => {
 
   return (
     <Container>
-      {videos.map((video) => (
+      {videos && videos.map((video) => (
         <Card type="sm" key={video._id} video={video} />
       ))}
     </Container>

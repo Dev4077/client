@@ -75,14 +75,21 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
     try {
-      const res = await axios.post("/auth/signin", { name, password });
+      const res = await axios.post("https://videoplayer-9bb8.onrender.com/api/auth/signin", { name, password });
       dispatch(loginSuccess(res.data));
       navigate("/")
+      window.location.reload();
     } catch (err) {
       dispatch(loginFailure());
     }
@@ -93,7 +100,7 @@ const SignIn = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         axios
-          .post("/auth/google", {
+          .post("https://videoplayer-9bb8.onrender.com/api/auth/google", {
             name: result.user.displayName,
             email: result.user.email,
             img: result.user.photoURL,
@@ -102,6 +109,7 @@ const SignIn = () => {
             console.log(res)
             dispatch(loginSuccess(res.data));
             navigate("/")
+            window.location.reload();
           });
       })
       .catch((error) => {
@@ -109,14 +117,29 @@ const SignIn = () => {
       });
   };
 
-  //TODO: REGISTER FUNCTIONALITY
 
+
+  //TODO: REGISTER FUNCTIONALITY
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('https://videoplayer-9bb8.onrender.com/api/auth/signup', formData);
+      console.log(response.data); 
+    } catch (error) {
+      console.error('Error signing up:', error);
+      // handle error, show error message, etc.
+    }
+  };
 
   return (
     <Container>
       <Wrapper>
         <Title>Sign in</Title>
-        <SubTitle>to continue to LamaTube</SubTitle>
         <Input
           placeholder="username"
           onChange={(e) => setName(e.target.value)}
@@ -129,18 +152,30 @@ const SignIn = () => {
         <Button onClick={handleLogin}>Sign in</Button>
         <Title>or</Title>
         <Button onClick={signInWithGoogle}>Signin with Google</Button>
-        <Title>or</Title>
+
+        <form onSubmit={handleSubmit}>
+        <Title>Sign up</Title>
         <Input
-          placeholder="username"
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input placeholder="email" onChange={(e) => setEmail(e.target.value)} />
-        <Input
-          type="password"
-          placeholder="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button>Sign up</Button>
+        placeholder="Username"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+      />
+      <Input
+        placeholder="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+      <Input
+        type="password"
+        placeholder="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+      />
+        <Button htmlType="submit">Sign up</Button>
+        </form>
       </Wrapper>
       <More>
         English(USA)

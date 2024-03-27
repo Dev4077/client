@@ -37,7 +37,7 @@ const Comments = ({videoId}) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`/comments/${videoId}`);
+        const res = await axios.get(`https://videoplayer-9bb8.onrender.com/api/comments/${videoId}`);
         setComments(res.data);
       } catch (err) {}
     };
@@ -52,7 +52,7 @@ const Comments = ({videoId}) => {
         <Avatar src={currentUser?.img} />
         <Input placeholder="Add a comment..." />
       </NewComment>
-      {comments.map(comment=>(
+      {comments && comments.map(comment=>(
         <Comment key={comment._id} comment={comment}/>
       ))}
     </Container>

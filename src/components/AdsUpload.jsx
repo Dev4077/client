@@ -135,9 +135,13 @@ const AdsUpload = ({ setOpenAds }) => {
 
   const handleUpload = async (e)=>{
     e.preventDefault();
-    const res = await axios.post("/adsvideo", {...inputs, tags})
+    const res = await axios.post("https://videoplayer-9bb8.onrender.com/api/adsvideo", {...inputs, tags})
     setOpenAds(false)
-    res.status===200
+    if (res.status === 200) {
+      // Handle success
+    } else {
+      // Handle error
+    }
   }
 
   return (

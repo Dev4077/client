@@ -160,14 +160,14 @@ const Video = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const videoRes = await axios.get(`/videos/find/${path}`);
-        const res = await axios.put(`/videos/view/${path}`);
-        const adsvideoRes = await axios.get(`/adsvideo/findads`);
+        const videoRes = await axios.get(`https://videoplayer-9bb8.onrender.com/api/videos/find/${path}`);
+        const res = await axios.put(`https://videoplayer-9bb8.onrender.com/api/videos/view/${path}`);
+        const adsvideoRes = await axios.get(`https://videoplayer-9bb8.onrender.com/api/adsvideo/findads`);
 
         setAdsVideo(adsvideoRes.data[0]);
 
         const channelRes = await axios.get(
-          `/users/find/${videoRes.data.userId}`
+          `https://videoplayer-9bb8.onrender.com/api/users/find/${videoRes.data.userId}`
         );
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
@@ -207,18 +207,18 @@ const Video = () => {
   };
 
   const handleLike = async () => {
-    await axios.put(`/users/like/${currentVideo._id}`);
+    await axios.put(`https://videoplayer-9bb8.onrender.com/api/users/like/${currentVideo._id}`);
     dispatch(like(currentUser._id));
   };
   const handleDislike = async () => {
-    await axios.put(`/users/dislike/${currentVideo._id}`);
+    await axios.put(`https://videoplayer-9bb8.onrender.com/api/users/dislike/${currentVideo._id}`);
     dispatch(dislike(currentUser._id));
   };
 
   const handleSub = async () => {
     currentUser.subscribedUsers.includes(channel._id)
-      ? await axios.put(`/users/unsub/${channel._id}`)
-      : await axios.put(`/users/sub/${channel._id}`);
+      ? await axios.put(`https://videoplayer-9bb8.onrender.com/api/users/unsub/${channel._id}`)
+      : await axios.put(`https://videoplayer-9bb8.onrender.com/api/users/sub/${channel._id}`);
     dispatch(subscription(channel._id));
   };
 
@@ -251,7 +251,8 @@ const Video = () => {
             controls={true}
             muted={showBanner}
             autoPlay={!showBanner}
-            onTimeUpdate={handleVideoTimeUpdate} // Auto-play video unless it's paused// Pause the video if videoPaused is true
+            onTimeUpdate={handleVideoTimeUpdate}
+            controlsList="nodownload"
           />
          
         </VideoWrapper>
